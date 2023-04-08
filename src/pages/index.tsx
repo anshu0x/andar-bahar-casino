@@ -1,124 +1,187 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
+import Image from "next/image";
+import { useAnimation, motion, AnimatePresence } from "framer-motion";
+import { useCallback, useState } from "react";
+import { shuffle } from "../utils/index";
+import { GameCards } from "../utils/Cards";
+import dynamic from "next/dynamic";
+import AbResult from "@/components/AbResult";
+const Cards = dynamic(() => import("../components/Cards"));
+const Andharbahar = () => {
+  const controls = useAnimation();
+  const [cards, setCards] = useState(GameCards);
+  const [randomkey, setRandomkey] = useState(Math.random());
+  const [resultkey, setResultkey] = useState(Math.random());
+  const [showGameResult, setshowGameResult] = useState(false);
+  const [showOpenCard, setshowOpenCard] = useState(false);
+  const [resultText, setresultText] = useState("");
+  const [openCard, setOpenCard] = useState(0);
+  const generateOpenCard = useCallback(() => {
+    let openCard = Math.floor(Math.random() * (19 - 0 + 1) + 0);
+    setOpenCard(openCard);
+  }, []);
+  const playGame = useCallback(() => {
+    controls.start("closed");
+  }, [controls]);
 
-const inter = Inter({ subsets: ['latin'] })
+  const setWin = useCallback((name: string) => {
+    setresultText(name);
+  }, []);
 
-export default function Home() {
+  const ResetGame = useCallback(() => {
+    setRandomkey(Math.random());
+    setCards((prev) => shuffle(prev));
+    setshowOpenCard(false);
+  }, []);
+  const show_shuffle_card = () => {
+    generateOpenCard();
+    setCards(shuffle(GameCards));
+    setshowOpenCard(true);
+  };
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className="flex flex-col h-screen w-full justify-center items-center bg-[#161b2e] opacity-1">
+      <div className="flex w-full text-center font-black tracking-wider justify-center px-1 text-white pt-4 items-center">
+        <p className="font-semibold">Andhar Bahar</p>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+      <div className="bg-[#161b2e] relative rounded-lg max-w-md  w-screen h-full my-4">
+        <div className="invisible game-states flex mt-4 mb-6 w-full justify-between font-bold p-4 text-white">
+          <div className="period">
+            <h1>Period</h1>
+            <p className="text-sm font-normal">2212190582</p>
+          </div>
+          <div className="period">
+            <h1>Countdown</h1>
+            <p className="text-sm font-normal">0 0 : 2 2</p>
+          </div>
+        </div>
+        <div className="opencard flex justify-center w-full my-3">
+          <div className="single-card relative bg-yellow-100 gap-4 grid items-center justify-center h-24  w-16 rounded-lg mt-4 mx-4 ">
+            <AnimatePresence>
+              {!showOpenCard ? (
+                <motion.div key="closed-card">
+                  <Image
+                    src={"/assets/card/abBg.png"}
+                    width="100"
+                    height={"100"}
+                    alt="coin"
+                    className="select-none"
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="bg-yellow-100 grid items-center justify-center rounded-lg"
+                  key="open-card"
+                >
+                  <Image
+                    src={cards[openCard].img}
+                    width={"30"}
+                    height={"50"}
+                    alt="coin"
+                    className="select-none my-2"
+                  />
+                  <Image
+                    src={cards[openCard].cardtype}
+                    width={"30"}
+                    height={"50"}
+                    alt="coin"
+                    className="select-none my-2"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+        <div className="flex gap-8 justify-center my-10">
+          <div className="andhar">
+            <Image
+              src={"/assets/card/andarBg.png"}
+              width={"80"}
+              height={"120"}
+              alt="coin"
+              className="select-none mt-28"
+            />
+          </div>
+          <div>
+            <div className="animated-card z-10">
+              <Image
+                src={"/assets/card/abAllCards.png"}
+                width={"90"}
+                height={"90"}
+                alt="coin"
+                className="select-none"
+              />
+              <Cards
+                opencard={cards[openCard]["cardNo"]}
+                cards={cards}
+                key={randomkey}
+                controls={controls}
+                setResultkey={setResultkey}
+                setresultText={setWin}
+                setshowGameResult={setshowGameResult}
+              />
+            </div>
+          </div>
+          <div className="bahar">
+            <Image
+              src={"/assets/card/baharBg.png"}
+              width={"80"}
+              height={"90"}
+              alt="coin"
+              className="select-none mt-28"
+            />
+          </div>
+        </div>
+        <div className="items-end flex gap-2 justify-between px-6 mx-4  my-4">
+          <button
+            disabled={!showOpenCard}
+            type="button"
+            onClick={() => {
+              playGame();
+            }}
+            className=" disabled:bg-slate-600 text-white font-bold bg-blue-700 hover:bg-blue-800 rounded-lg text-sm px-8 py-2.5 mb-2 focus:outline-none dark:focus:ring-blue-800"
+          >
+            Andar
+          </button>
+          <div className="flex flex-col w-full">
+            <button
+              type="button"
+              disabled={showOpenCard}
+              onClick={show_shuffle_card}
+              className="disabled:bg-slate-600 text-white bg-blue-600 rounded-lg text-sm px-2 py-2.5  mb-2"
+            >
+              Show Card
+            </button>
+            <button
+              type="button"
+              disabled={!showOpenCard}
+              onClick={() => {
+                playGame();
+              }}
+              className="disabled:bg-slate-600 font-bold text-white bg-yellow-400 hover:bg-yellow-500 rounded-lg text-sm px-6 py-2.5  mb-2"
+            >
+              Tie
+            </button>
+          </div>
+          <button
+            disabled={!showOpenCard}
+            onClick={() => {
+              playGame();
+            }}
+            type="button"
+            className=" text-white bg-red-700 font-bold hover:bg-red-800 rounded-lg text-sm px-8 py-2.5 mb-2 disabled:bg-slate-600"
+          >
+            Bahar
+          </button>
+        </div>
+        <AbResult
+          resultText={resultText}
+          showGameResult={showGameResult}
+          key={resultkey}
+          ResetGame={ResetGame}
+          setshowGameResult={setshowGameResult}
         />
       </div>
+    </div>
+  );
+};
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p
-            className={`${inter.className} m-0 max-w-[30ch] text-sm opacity-50`}
-          >
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default Andharbahar;
