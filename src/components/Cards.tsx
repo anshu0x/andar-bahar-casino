@@ -1,25 +1,23 @@
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { memo, useCallback, useMemo } from "react";
-import { Dispatch, Fragment, SetStateAction } from "react";
+import { memo, useCallback, useMemo, useRef } from "react";
 import { Card } from "@/types";
+
 type Props = {
   cards: Card[];
   opencard: number;
   controls: unknown;
   setresultText: (name: string) => void;
-  setResultkey: Dispatch<SetStateAction<number>>;
-  setshowGameResult: Dispatch<SetStateAction<boolean>>;
 };
-const Cards = ({
-  cards,
-  opencard,
-  controls,
-  setresultText,
-  setshowGameResult,
-  setResultkey,
-}: Props) => {
-  console.log("render");
+const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const handlePlayClick = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // set the audio time to 0 to ensure it plays from the beginning
+      audioRef.current.play();
+    }
+  }, []);
+
   function isEven(n: number) {
     return n % 2 == 0;
   }
@@ -30,8 +28,6 @@ const Cards = ({
           setTimeout(() => {
             // @ts-ignore
             controls.stop("open");
-            setshowGameResult(true);
-            setResultkey(Math.random());
           }, 600);
           if (isEven(index)) {
             setresultText("bahar");
@@ -48,7 +44,7 @@ const Cards = ({
         console.log(error);
       }
     },
-    [controls, opencard, setResultkey, setresultText, setshowGameResult]
+    [controls, opencard, setresultText]
   );
 
   const variants = useMemo(
@@ -86,9 +82,10 @@ const Cards = ({
             className="flex absolute select-none top-2/4 bg-white flex-col gap-2 border p-4 rounded-md"
             custom={{ animate: index + 1, key: index }}
             // @ts-ignore
-            whileInView={() =>
-              item.cardNo === opencard && stopAnimwhenmatch(item, index)
-            }
+            whileInView={() => {
+              handlePlayClick();
+              item.cardNo === opencard && stopAnimwhenmatch(item, index);
+            }}
             exit={{ opacity: 0, display: "none" }}
           >
             <Image src={item.img} alt={item.img} width={30} height={50} />
@@ -101,11 +98,13 @@ const Cards = ({
           </motion.div>
         ))}
       </AnimatePresence>
-      <p className="text-white text-xs font-semibold text-center my-4 tracking-wider">
-        Total Cards: 20
-      </p>
+      <audio ref={audioRef}>
+        <source src="/sounds/card.mp3" type="audio/mp3" />
+      </audio>
     </div>
   );
 };
 
-export default memo(Cards);
+export default memo(Cards, (prev, next) => {
+  return prev.opencard === next.opencard;
+});

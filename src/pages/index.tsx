@@ -1,12 +1,16 @@
 import Image from "next/image";
 import { useAnimation, motion, AnimatePresence } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { shuffle } from "../utils/index";
 import { GameCards } from "../utils/Cards";
 import dynamic from "next/dynamic";
 import AbResult from "@/components/AbResult";
+import AndharBaharSheet from "@/components/AndharBaharSheet";
+import { useUserInfo } from "@/context/UserInfo";
+import toast from "react-hot-toast";
 const Cards = dynamic(() => import("../components/Cards"));
 const Andharbahar = () => {
+  const userInfo = useUserInfo();
   const controls = useAnimation();
   const [cards, setCards] = useState(GameCards);
   const [randomkey, setRandomkey] = useState(Math.random());
@@ -14,6 +18,8 @@ const Andharbahar = () => {
   const [showGameResult, setshowGameResult] = useState(false);
   const [showOpenCard, setshowOpenCard] = useState(false);
   const [resultText, setresultText] = useState("");
+  const [betOnABT, setbetOnABT] = useState("");
+  const [orderSheet, setOrderSheet] = useState(false);
   const [openCard, setOpenCard] = useState(0);
   const generateOpenCard = useCallback(() => {
     let openCard = Math.floor(Math.random() * (19 - 0 + 1) + 0);
@@ -24,31 +30,66 @@ const Andharbahar = () => {
   }, [controls]);
 
   const setWin = useCallback((name: string) => {
-    setresultText(name);
+    setresultText((prev) => {
+      if (prev === "") {
+        return name;
+      }
+      return "";
+    });
+    setResultkey(Math.random());
+    setshowGameResult(true);
   }, []);
 
   const ResetGame = useCallback(() => {
     setRandomkey(Math.random());
     setCards((prev) => shuffle(prev));
-    setshowOpenCard(false);
-  }, []);
+    setTimeout(() => {
+      setshowOpenCard(false);
+    }, 1000);
+    setbetOnABT("");
+    setresultText("");
+    if (userInfo) {
+      userInfo.setUser((prev) => {
+        return { ...prev, orderAmount: 0 };
+      });
+    }
+  }, [userInfo]);
   const show_shuffle_card = () => {
     generateOpenCard();
     setCards(shuffle(GameCards));
     setshowOpenCard(true);
   };
+  useEffect(() => {
+    if (
+      resultText !== "" &&
+      betOnABT !== "" &&
+      userInfo?.user.orderAmount !== 0
+    ) {
+      setTimeout(() => {
+        if (userInfo !== null && resultText === betOnABT) {
+          toast.success("You Won !");
+          userInfo.setUser((prev) => {
+            return { ...prev, balance: prev.balance + prev.orderAmount * 2 };
+          });
+        } else {
+          toast.error("You Lose !");
+        }
+      }, 1000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [betOnABT, resultText]);
   return (
-    <div className="flex flex-col h-screen w-full justify-center items-center bg-[#161b2e] opacity-1">
-      <div className="flex w-full text-center font-black tracking-wider justify-center px-1 text-white pt-4 items-center">
-        <p className="font-semibold">Andhar Bahar</p>
+    <div className="flex flex-col relative h-screen w-full justify-center items-center bg-[#161b2e] opacity-1">
+      <div className="flex w-full text-center flex-col font-black tracking-wider justify-center px-1 text-white pt-4 items-center">
+        <p className="font-semibold">Andar Bahar</p>
       </div>
-      <div className="bg-[#161b2e] relative rounded-lg max-w-md  w-screen h-full my-4">
-        <div className="invisible game-states flex mt-4 mb-6 w-full justify-between font-bold p-4 text-white">
-          <div className="period">
-            <h1>Period</h1>
-            <p className="text-sm font-normal">2212190582</p>
+      <div className="bg-[#161b2e] relative rounded-lg max-w-md w-screen h-full my-4">
+        <div className="invisible flex mt-4 mb-6 w-full justify-between font-bold p-4 text-white">
+          <div>
+            <h1>Balance</h1>
+            <p className="text-sm font-normal">{userInfo?.user?.balance}</p>
           </div>
-          <div className="period">
+          <div>
             <h1>Countdown</h1>
             <p className="text-sm font-normal">0 0 : 2 2</p>
           </div>
@@ -114,9 +155,7 @@ const Andharbahar = () => {
                 cards={cards}
                 key={randomkey}
                 controls={controls}
-                setResultkey={setResultkey}
                 setresultText={setWin}
-                setshowGameResult={setshowGameResult}
               />
             </div>
           </div>
@@ -135,9 +174,10 @@ const Andharbahar = () => {
             disabled={!showOpenCard}
             type="button"
             onClick={() => {
-              playGame();
+              setOrderSheet(true);
+              setbetOnABT("andar");
             }}
-            className=" disabled:bg-slate-600 text-white font-bold bg-blue-700 hover:bg-blue-800 rounded-lg text-sm px-8 py-2.5 mb-2 focus:outline-none dark:focus:ring-blue-800"
+            className=" disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-bold bg-blue-700 hover:bg-blue-800 rounded-lg text-sm px-8 py-2.5 mb-2 focus:outline-none dark:focus:ring-blue-800"
           >
             Andar
           </button>
@@ -146,7 +186,7 @@ const Andharbahar = () => {
               type="button"
               disabled={showOpenCard}
               onClick={show_shuffle_card}
-              className="disabled:bg-slate-600 text-white bg-blue-600 rounded-lg text-sm px-2 py-2.5  mb-2"
+              className="disabled:bg-slate-600 disabled:cursor-not-allowed text-white bg-blue-600 rounded-lg text-sm px-2 py-2.5  mb-2"
             >
               Show Card
             </button>
@@ -154,9 +194,10 @@ const Andharbahar = () => {
               type="button"
               disabled={!showOpenCard}
               onClick={() => {
-                playGame();
+                setOrderSheet(true);
+                setbetOnABT("tie");
               }}
-              className="disabled:bg-slate-600 font-bold text-white bg-yellow-400 hover:bg-yellow-500 rounded-lg text-sm px-6 py-2.5  mb-2"
+              className="disabled:bg-slate-600  disabled:cursor-not-allowed font-bold text-white bg-yellow-400 hover:bg-yellow-500 rounded-lg text-sm px-6 py-2.5  mb-2"
             >
               Tie
             </button>
@@ -164,14 +205,21 @@ const Andharbahar = () => {
           <button
             disabled={!showOpenCard}
             onClick={() => {
-              playGame();
+              setOrderSheet(true);
+              setbetOnABT("bahar");
             }}
             type="button"
-            className=" text-white bg-red-700 font-bold hover:bg-red-800 rounded-lg text-sm px-8 py-2.5 mb-2 disabled:bg-slate-600"
+            className=" text-white bg-red-700 disabled:cursor-not-allowed font-bold hover:bg-red-800 rounded-lg text-sm px-8 py-2.5 mb-2 disabled:bg-slate-600"
           >
             Bahar
           </button>
         </div>
+        <AndharBaharSheet
+          orderSheet={orderSheet}
+          betOnABT={betOnABT}
+          setOrderSheet={setOrderSheet}
+          playGame={playGame}
+        />
         <AbResult
           resultText={resultText}
           showGameResult={showGameResult}
