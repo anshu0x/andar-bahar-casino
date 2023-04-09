@@ -1,13 +1,13 @@
 import Image from "next/image";
-import { useAnimation, motion, AnimatePresence } from "framer-motion";
+import { useAnimation, m, LazyMotion, domAnimation } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { shuffle } from "../utils/index";
 import { GameCards } from "../utils/Cards";
 import dynamic from "next/dynamic";
-import AbResult from "@/components/AbResult";
-import AndharBaharSheet from "@/components/AndharBaharSheet";
 import { useUserInfo } from "@/context/UserInfo";
 import toast from "react-hot-toast";
+const AbResult = dynamic(() => import("@/components/AbResult"));
+const AndharBaharSheet = dynamic(() => import("@/components/AndharBaharSheet"));
 const Cards = dynamic(() => import("../components/Cards"));
 const Andharbahar = () => {
   const userInfo = useUserInfo();
@@ -25,6 +25,7 @@ const Andharbahar = () => {
     let openCard = Math.floor(Math.random() * (19 - 0 + 1) + 0);
     setOpenCard(openCard);
   }, []);
+  console.log("rendering");
   const playGame = useCallback(() => {
     controls.start("closed");
   }, [controls]);
@@ -96,9 +97,9 @@ const Andharbahar = () => {
         </div>
         <div className="opencard flex justify-center w-full my-3">
           <div className="single-card relative bg-yellow-100 gap-4 grid items-center justify-center h-24  w-16 rounded-lg mt-4 mx-4 ">
-            <AnimatePresence>
+            <LazyMotion features={domAnimation}>
               {!showOpenCard ? (
-                <motion.div key="closed-card">
+                <m.div key="closed-card">
                   <Image
                     src={"/assets/card/abBg.png"}
                     width="100"
@@ -106,9 +107,9 @@ const Andharbahar = () => {
                     alt="coin"
                     className="select-none"
                   />
-                </motion.div>
+                </m.div>
               ) : (
-                <motion.div
+                <m.div
                   className="bg-yellow-100 grid items-center justify-center rounded-lg"
                   key="open-card"
                 >
@@ -126,9 +127,9 @@ const Andharbahar = () => {
                     alt="coin"
                     className="select-none my-2"
                   />
-                </motion.div>
+                </m.div>
               )}
-            </AnimatePresence>
+            </LazyMotion>
           </div>
         </div>
         <div className="flex gap-8 justify-center my-10">
@@ -232,4 +233,4 @@ const Andharbahar = () => {
   );
 };
 
-export default Andharbahar;
+export default Andharbahar

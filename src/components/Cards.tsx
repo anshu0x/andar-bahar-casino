@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { memo, useCallback, useMemo, useRef } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Card } from "@/types";
+import { m, LazyMotion, domAnimation } from "framer-motion";
 
 type Props = {
   cards: Card[];
@@ -10,14 +10,6 @@ type Props = {
   setresultText: (name: string) => void;
 };
 const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const handlePlayClick = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0; // set the audio time to 0 to ensure it plays from the beginning
-      audioRef.current.play();
-    }
-  }, []);
-
   function isEven(n: number) {
     return n % 2 == 0;
   }
@@ -28,17 +20,13 @@ const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
           setTimeout(() => {
             // @ts-ignore
             controls.stop("open");
-          }, 600);
-          if (isEven(index)) {
-            setresultText("bahar");
-            return;
-          } else if (!isEven(index)) {
-            setresultText("andar");
-            return;
-          } else {
-            setresultText("tie");
-            return;
-          }
+          }, 800);
+          const result = isEven(index)
+            ? "bahar"
+            : !isEven(index)
+            ? "andar"
+            : "tie";
+          setresultText(result);
         }
       } catch (error) {
         console.log(error);
@@ -70,9 +58,9 @@ const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
 
   return (
     <div className="flex justify-center">
-      <AnimatePresence>
+      <LazyMotion features={domAnimation}>
         {cards.slice(0, 20).map((item, index) => (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, display: "none" }}
             layoutId={item.img + item.cardtype + item.color}
             // @ts-ignore
@@ -83,7 +71,6 @@ const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
             custom={{ animate: index + 1, key: index }}
             // @ts-ignore
             whileInView={() => {
-              handlePlayClick();
               item.cardNo === opencard && stopAnimwhenmatch(item, index);
             }}
             exit={{ opacity: 0, display: "none" }}
@@ -95,16 +82,11 @@ const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
               width={30}
               height={50}
             />
-          </motion.div>
+          </m.div>
         ))}
-      </AnimatePresence>
-      <audio ref={audioRef}>
-        <source src="/sounds/card.mp3" type="audio/mp3" />
-      </audio>
+      </LazyMotion>
     </div>
   );
 };
 
-export default memo(Cards, (prev, next) => {
-  return prev.opencard === next.opencard;
-});
+export default memo(Cards);
