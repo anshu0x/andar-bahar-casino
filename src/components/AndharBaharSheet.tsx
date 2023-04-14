@@ -16,12 +16,12 @@ function AndharBaharSheet({
   playGame,
 }: Props) {
   const userInfo = useUserInfo();
-
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
       if (
         userInfo !== null &&
+        userInfo.user.orderAmount &&
         userInfo.user.balance >= userInfo.user.orderAmount
       ) {
         toast.success("Order succeed!");
@@ -29,11 +29,12 @@ function AndharBaharSheet({
           return { ...prev, balance: prev.balance - userInfo.user.orderAmount };
         });
         playGame();
+      } else if (userInfo !== null && userInfo.user.orderAmount < 1) {
+        toast.error("Please Select the Amount !");
       } else {
         toast.error("You don't have enough balance!");
       }
     } catch (error) {
-      console.log(error);
       toast.error("An error occured!");
     } finally {
       handleSheetClose();
