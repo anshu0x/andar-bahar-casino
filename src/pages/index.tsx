@@ -110,16 +110,18 @@ const Andharbahar = () => {
                 </m.div>
               ) : (
                 <m.div
-                  className="bg-yellow-100 grid items-center justify-center rounded-lg"
+                  className="bg-yellow-100 text-center grid items-center justify-center rounded-lg"
                   key="open-card"
                 >
-                  <Image
-                    src={cards[openCard].img}
-                    width={"30"}
-                    height={"50"}
-                    alt="coin"
-                    className="select-none my-2"
-                  />
+                  <p
+                    className={`font-black tracking-wider text-2xl ${
+                      cards[openCard].color == "red"
+                        ? "text-red-600"
+                        : "text-[#013888]"
+                    } `}
+                  >
+                    {cards[openCard].cardNo}
+                  </p>
                   <Image
                     src={cards[openCard].cardtype}
                     width={"30"}
@@ -233,4 +235,4 @@ const Andharbahar = () => {
   );
 };
 
-export default Andharbahar
+export default Andharbahar;

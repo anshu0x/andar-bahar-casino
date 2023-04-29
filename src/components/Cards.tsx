@@ -62,12 +62,12 @@ const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
         {cards.slice(0, 20).map((item, index) => (
           <m.div
             initial={{ opacity: 0, display: "none" }}
-            layoutId={item.img + item.cardtype + item.color}
+            layoutId={item.cardNo + item.cardtype + item.color}
             // @ts-ignore
             animate={controls}
             variants={variants}
-            key={item.img + item.cardtype + item.color}
-            className="flex absolute select-none top-2/4 bg-white flex-col gap-2 border p-4 rounded-md"
+            key={item.cardNo + item.cardtype + item.color}
+            className="flex absolute select-none text-center max-h-24 justify-center top-2/4 bg-white flex-col gap-2 border p-4 rounded-md"
             custom={{ animate: index + 1, key: index }}
             // @ts-ignore
             whileInView={() => {
@@ -75,7 +75,13 @@ const Cards = ({ cards, opencard, controls, setresultText }: Props) => {
             }}
             exit={{ opacity: 0, display: "none" }}
           >
-            <Image src={item.img} alt={item.img} width={30} height={50} />
+            <p
+              className={`font-black tracking-wider text-2xl ${
+                item.color == "red" ? "text-red-600" : "text-[#013888]"
+              } `}
+            >
+              {item.cardNo}
+            </p>
             <Image
               src={item.cardtype}
               alt={item.cardtype}
