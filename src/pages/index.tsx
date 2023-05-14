@@ -25,7 +25,6 @@ const Andharbahar = () => {
     let openCard = Math.floor(Math.random() * (19 - 0 + 1) + 0);
     setOpenCard(openCard);
   }, []);
-  console.log("rendering");
   const playGame = useCallback(() => {
     controls.start("closed");
   }, [controls]);
@@ -79,6 +78,8 @@ const Andharbahar = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betOnABT, resultText]);
+  console.log(userInfo?.user.orderAmount);
+
   return (
     <div className="flex flex-col relative h-screen w-full justify-center items-center bg-[#161b2e] opacity-1">
       <div className="flex w-full text-center flex-col font-black tracking-wider justify-center px-1 text-white pt-4 items-center">
@@ -174,7 +175,7 @@ const Andharbahar = () => {
         </div>
         <div className="items-end flex gap-2 justify-between px-6 mx-4  my-4">
           <button
-            disabled={!showOpenCard}
+            disabled={!showOpenCard || userInfo?.user.orderAmount !== 0}
             type="button"
             onClick={() => {
               setOrderSheet(true);
@@ -195,7 +196,7 @@ const Andharbahar = () => {
             </button>
             <button
               type="button"
-              disabled={!showOpenCard}
+              disabled={!showOpenCard || userInfo?.user.orderAmount !== 0}
               onClick={() => {
                 setOrderSheet(true);
                 setbetOnABT("tie");
@@ -206,7 +207,7 @@ const Andharbahar = () => {
             </button>
           </div>
           <button
-            disabled={!showOpenCard}
+            disabled={!showOpenCard || userInfo?.user.orderAmount !== 0}
             onClick={() => {
               setOrderSheet(true);
               setbetOnABT("bahar");
